@@ -5,17 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Scratch Card App</title>
     <style>
+      body,
+      html {
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        width: 100%;
+        height: 100%;
+      }
+
       #container {
-        width: 785px;
-        height: 1396px;
+        width: 100vw;
+        height: 100vh;
         position: relative;
-        background: url("details.jpeg") no-repeat;
+        background: url("details.jpeg") no-repeat center center;
+        background-size: cover;
       }
 
       #canvas {
         position: absolute;
         top: 0;
         left: 0;
+        width: 100%;
+        height: 100%;
       }
     </style>
   </head>
@@ -56,12 +68,28 @@
 
       function draw(event) {
         if (!isDrawing) return;
+        let x, y;
+        if (event.type === "touchmove") {
+          event.preventDefault();
+          let touch = event.touches[0];
+          x = touch.clientX - canvas.offsetLeft;
+          y = touch.clientY - canvas.offsetTop;
+        } else {
+          x = event.clientX - canvas.offsetLeft;
+          y = event.clientY - canvas.offsetTop;
+        }
+
+        // Adjust the coordinates based on the scaling factor
+        x /= scaleX;
+        y /= scaleY;
+
         ctx.globalCompositeOperation = "destination-out";
         ctx.lineWidth = 130;
         ctx.lineCap = "round";
         ctx.strokeStyle = "white";
 
         if (event.type === "touchmove") {
+          event.preventDefault();
           // Get touch coordinates
           let touch = event.touches[0];
           ctx.lineTo(
@@ -101,6 +129,25 @@
       canvas.addEventListener("touchstart", startDraw, false);
       canvas.addEventListener("touchend", endDraw, false);
       canvas.addEventListener("touchmove", draw, false);
+
+      function handleResize() {
+        // Set canvas dimensions based on viewport
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        // Compute the scaling factor between displayed size and actual canvas dimensions
+        scaleX = canvas.width / 785;
+        scaleY = canvas.height / 1396;
+
+        // Redraw the cover image onto the canvas
+        ctx.drawImage(coverImage, 0, 0, canvas.width, canvas.height);
+      }
+
+      // Initial call to set things up
+      handleResize();
+
+      // Listen to the resize event
+      window.addEventListener("resize", handleResize);
     </script>
   </body>
 </html>
