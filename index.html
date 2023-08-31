@@ -15,10 +15,8 @@
       }
 
       #container {
-        width: 100vw;
-        height: 100vh;
         position: relative;
-        background: url("details.jpeg") no-repeat center center;
+        background: url("details.jpeg") no-repeat top left;
         background-size: cover;
       }
 
@@ -26,8 +24,6 @@
         position: absolute;
         top: 0;
         left: 0;
-        width: 100%;
-        height: 100%;
       }
     </style>
   </head>
@@ -43,8 +39,13 @@
 
       const coverImage = new Image();
       coverImage.src = "cover.jpeg";
+
       coverImage.onload = function () {
-        ctx.drawImage(coverImage, 0, 0);
+        // Once the cover image is loaded, handle the resize
+        handleResize();
+
+        // Draw the cover image onto the canvas
+        ctx.drawImage(coverImage, 0, 0, canvas.width, canvas.height);
       };
 
       let isDrawing = false;
@@ -129,22 +130,34 @@
       canvas.addEventListener("touchstart", startDraw, false);
       canvas.addEventListener("touchend", endDraw, false);
       canvas.addEventListener("touchmove", draw, false);
-
       function handleResize() {
-        // Set canvas dimensions based on viewport
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
+        const viewportRatio = viewportWidth / viewportHeight;
+        const imageRatio = 785 / 1396;
+
+        if (viewportRatio > imageRatio) {
+          // The viewport is wider than the image's aspect ratio
+          canvas.width = viewportHeight * imageRatio;
+          canvas.height = viewportHeight;
+        } else {
+          // The viewport is taller than the image's aspect ratio
+          canvas.width = viewportWidth;
+          canvas.height = viewportWidth / imageRatio;
+        }
 
         // Compute the scaling factor between displayed size and actual canvas dimensions
         scaleX = canvas.width / 785;
         scaleY = canvas.height / 1396;
 
+        // Adjust container dimensions
+        document.getElementById("container").style.width = canvas.width + "px";
+        document.getElementById("container").style.height =
+          canvas.height + "px";
+
         // Redraw the cover image onto the canvas
         ctx.drawImage(coverImage, 0, 0, canvas.width, canvas.height);
       }
-
-      // Initial call to set things up
-      handleResize();
 
       // Listen to the resize event
       window.addEventListener("resize", handleResize);
