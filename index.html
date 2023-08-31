@@ -1,52 +1,72 @@
 <!DOCTYPE html>
-<html lang="he" dir="rtl">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Responsive Hebrew Web Page</title>
+    <title>Scratch Card App</title>
     <style>
-      body {
-        font-family: "Arial", sans-serif;
-        margin: 0;
-        padding: 0;
-        background-color: #f4f4f4;
+      #container {
+        width: 785px;
+        height: 1396px;
+        position: relative;
+        background: url("details.jpeg") no-repeat;
       }
 
-      header {
-        background-color: #333;
-        color: #fff;
-        text-align: center;
-        padding: 1em 0;
-      }
-
-      .container {
-        max-width: 800px;
-        margin: 2em auto;
-        background-color: #fff;
-        padding: 2em;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-      }
-
-      p {
-        line-height: 1.6;
-        font-size: 1em;
-      }
-
-      @media screen and (max-width: 600px) {
-        .container {
-          padding: 1em;
-        }
+      #canvas {
+        position: absolute;
+        top: 0;
+        left: 0;
       }
     </style>
   </head>
 
   <body>
-    <header>
-      <h1>מזל טוב לנעמה</h1>
-    </header>
-
-    <div class="container">
-      <p>חתול</p>
+    <div id="container">
+      <canvas id="canvas" width="785" height="1396"></canvas>
     </div>
+
+    <script>
+      const canvas = document.getElementById("canvas");
+      const ctx = canvas.getContext("2d");
+
+      const coverImage = new Image();
+      coverImage.src = "cover.jpeg";
+      coverImage.onload = function () {
+        ctx.drawImage(coverImage, 0, 0);
+      };
+
+      let isDrawing = false;
+
+      canvas.addEventListener("mousedown", () => {
+        isDrawing = true;
+      });
+
+      canvas.addEventListener("mouseup", () => {
+        isDrawing = false;
+        ctx.beginPath();
+      });
+
+      canvas.addEventListener("mousemove", draw);
+
+      function draw(event) {
+        if (!isDrawing) return;
+        ctx.lineWidth = 130;
+        ctx.lineCap = "round";
+        ctx.strokeStyle = "white";
+
+        ctx.globalCompositeOperation = "destination-out";
+
+        ctx.lineTo(
+          event.clientX - canvas.offsetLeft,
+          event.clientY - canvas.offsetTop
+        );
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(
+          event.clientX - canvas.offsetLeft,
+          event.clientY - canvas.offsetTop
+        );
+      }
+    </script>
   </body>
 </html>
